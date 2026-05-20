@@ -9,7 +9,6 @@ export interface IUser extends Document {
     email: string;
     password: string;
     role: UserRole;
-    refreshToken?: string;
     comparePassword(candidate: string): Promise<boolean>;
 }
 
@@ -24,13 +23,24 @@ const UserSchema = new Schema<IUser>(
             enum: ['admin', 'fachkraft'],
             default: 'fachkraft',
         },
-        refreshToken: { type: String, default: '' },
     },
     { timestamps: true },
 );
 
+UserSchema.pre<IUser>('save', async function () {
+    if (!this.isModified('password')) return;
+    this.password = await bcrypt.hash(this.password, 12);
+});
+
 UserSchema.methods.comparePassword = function (candidate: string) {
     return bcrypt.compare(candidate, this.password);
 };
+
+UserSchema.set('toJSON', {
+    transform: (_doc, ret) => {
+        const { password, ...rest } = ret as IUser & { password?: string };
+        return rest;
+    },
+});
 
 export default mongoose.model<IUser>('User', UserSchema);

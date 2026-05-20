@@ -1,0 +1,34 @@
+import { Router } from 'express';
+import {
+    register,
+    login,
+    refresh,
+    logout,
+    me,
+    changeEmail,
+    changePassword,
+} from '#controllers';
+import { validateBody, protect } from '#middlewares';
+import {
+    registerSchema,
+    loginSchema,
+    changeEmailSchema,
+    changePasswordSchema,
+} from '#schemas';
+
+const router = Router();
+
+router.post('/register', validateBody(registerSchema), register);
+router.post('/login', validateBody(loginSchema), login);
+router.post('/refresh', refresh);
+router.post('/logout', logout);
+router.get('/me', protect, me);
+router.patch('/email', protect, validateBody(changeEmailSchema), changeEmail);
+router.patch(
+    '/password',
+    protect,
+    validateBody(changePasswordSchema),
+    changePassword,
+);
+
+export default router;
