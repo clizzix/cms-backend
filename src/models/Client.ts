@@ -11,7 +11,7 @@ export interface IClient extends Document {
     jugendamtContact?: string;
     assignedFachkraefte: Types.ObjectId[];
     nextReport: Date;
-    weeklyHourseQuota: number;
+    weeklyHoursQuota: number;
     status: StatusType;
     startDate: Date;
     endDate?: Date;
@@ -35,10 +35,10 @@ const ClientSchema = new Schema<IClient>(
         jugendamtContact: { type: String },
         assignedFachkraefte: [{ type: Types.ObjectId, ref: 'User' }],
         nextReport: { type: Date, required: true },
-        weeklyHourseQuota: { type: Number, required: true },
+        weeklyHoursQuota: { type: Number, required: true },
         status: {
             type: String,
-            enum: ['active', 'inactive', 'archived'],
+            enum: ['aktiv', 'pausiert', 'abgeschlossen'],
             required: true,
         },
         startDate: { type: Date, required: true },
