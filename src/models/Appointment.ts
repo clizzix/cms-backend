@@ -11,7 +11,7 @@ export type StatusType = 'geplant' | 'durchgeführt' | 'ausgefallen';
 
 export type MinuteType = 0 | 15 | 30 | 45;
 
-export interface IAppointment {
+export interface IAppointment extends Document {
     clientId: Types.ObjectId;
     createdBy: Types.ObjectId;
     type: AppointmentType;
@@ -22,29 +22,32 @@ export interface IAppointment {
     report: string;
 }
 
-const AppointmentSchema = new Schema<IAppointment>({
-    clientId: { type: Types.ObjectId, ref: 'Client' },
-    createdBy: { type: Types.ObjectId, ref: 'User' },
-    type: {
-        type: String,
-        enum: [
-            'Hausbesuch',
-            'Krisenintervention',
-            'Telefongespräch',
-            'Beratung',
-            'Sonstiges',
-        ],
-        default: 'Hausbesuch',
+const AppointmentSchema = new Schema<IAppointment>(
+    {
+        clientId: { type: Types.ObjectId, ref: 'Client' },
+        createdBy: { type: Types.ObjectId, ref: 'User' },
+        type: {
+            type: String,
+            enum: [
+                'Hausbesuch',
+                'Krisenintervention',
+                'Telefongespräch',
+                'Beratung',
+                'Sonstiges',
+            ],
+            default: 'Hausbesuch',
+        },
+        status: {
+            type: String,
+            enum: ['geplant', 'durchgeführt', 'ausgefallen'],
+            default: 'geplant',
+        },
+        date: { type: Date, required: true },
+        durationHours: { type: Number, required: true, default: 0 },
+        durationMinutes: { type: Number, required: true, default: 0 },
+        report: { type: String, required: true },
     },
-    status: {
-        type: String,
-        enum: ['geplant', 'durchgeführt', 'ausgefallen'],
-        default: 'geplant',
-    },
-    date: { type: Date, required: true },
-    durationHours: { type: Number, required: true, default: 0 },
-    durationMinutes: { type: Number, required: true, default: 0 },
-    report: { type: String, required: true },
-});
+    { timestamps: true },
+);
 
 export default mongoose.model<IAppointment>('Appointment', AppointmentSchema);
