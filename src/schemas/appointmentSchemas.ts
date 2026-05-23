@@ -29,11 +29,22 @@ export const createAppointmentSchema = z.object({
     status: appointmentStatusSchema.default('geplant'),
     date: z.coerce.date(),
     durationHours: z.number().int().min(0).default(0),
-    durationMinutes: minuteSchema.default(0),
-    report: z.string().min(1, 'Bericht wird benötigt'),
+    durationMinutes: minuteSchema,
+    report: z.string().default(''),
 });
 
-export const updateAppointmentSchema = createAppointmentSchema.partial();
+export const updateAppointmentSchema = z
+    .object({
+        type: appointmentTypeSchema.optional(),
+        status: z.enum(['geplant', 'durchgeführt', 'ausgefallen']).optional(),
+        date: z.coerce.date().optional(),
+        durationHours: z.number().int().min(0).optional(),
+        durationMinutes: minuteSchema.optional(),
+        report: z.string().optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+        message: 'Mindestens ein Feld erforderlich',
+    });
 
 export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>;
 export type UpdateAppointmentInput = z.infer<typeof updateAppointmentSchema>;
