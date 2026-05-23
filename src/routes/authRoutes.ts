@@ -8,7 +8,7 @@ import {
     changeEmail,
     changePassword,
 } from '#controllers';
-import { validateBody, protect } from '#middlewares';
+import { validateBody, protect, authRateLimiter } from '#middlewares';
 import {
     registerSchema,
     loginSchema,
@@ -18,8 +18,13 @@ import {
 
 const router = Router();
 
-router.post('/register', validateBody(registerSchema), register);
-router.post('/login', validateBody(loginSchema), login);
+router.post(
+    '/register',
+    authRateLimiter,
+    validateBody(registerSchema),
+    register,
+);
+router.post('/login', authRateLimiter, validateBody(loginSchema), login);
 router.post('/refresh', refresh);
 router.post('/logout', logout);
 router.get('/me', protect, me);
