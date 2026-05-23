@@ -1,0 +1,90 @@
+import type { RequestHandler } from 'express';
+import { User, RefreshToken } from '#models';
+import type { CreateUserInput, UpdateUserInput } from '#schemas';
+
+export const getUsers: RequestHandler = async (req, res) => {
+    const users = await User.find({ role: 'fachkraft' }).sort({
+        lastName: 1,
+        firstName: 1,
+    });
+    res.json({ data: { users } });
+};
+
+export const createUser: RequestHandler<{}, {}, CreateUserInput> = async (
+    req,
+    res,
+) => {
+    const { firstName, lastName, email, password, role } = req.body;
+
+    let user;
+    try {
+        user = await User.create({
+            firstName,
+            lastName,
+            email,
+            password,
+            role,
+        });
+    } catch (err) {
+        if ((err as { code?: number }).code === 11000) {
+            res.status(409).json({ message: 'E-Mail bereits vergeben' });
+            return;
+        }
+        throw err;
+    }
+
+    res.status(201).json({ data: { user } });
+};
+
+export const updateUser: RequestHandler<
+    { id: string },
+    {},
+    UpdateUserInput
+> = async (req, res) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+        res.status(404).json({ message: 'User nicht gefunden' });
+        return;
+    }
+
+    const { firstName, lastName, email, role } = req.body;
+
+    if (email !== undefined) {
+        const normalized = email.toLowerCase();
+        if (normalized !== user.email) {
+            const taken = await User.findOne({ email: normalized });
+            if (taken) {
+                res.status(409).json({ message: 'E-Mail bereits vergeben' });
+                return;
+            }
+            user.email = normalized;
+        }
+    }
+
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (role !== undefined) user.role = role;
+
+    await user.save();
+    res.json({ data: { user } });
+};
+
+export const deleteUser: RequestHandler<{ id: string }> = async (req, res) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+        res.status(404).json({ message: 'User nicht gefunden' });
+        return;
+    }
+
+    if (user.id === req.userId) {
+        res.status(400).json({
+            message: 'Eigener Account kann nicht gelöscht werden',
+        });
+        return;
+    }
+
+    await RefreshToken.deleteMany({ userId: user._id });
+    await user.deleteOne();
+
+    res.json({ data: { message: 'User gelöscht' } });
+};
