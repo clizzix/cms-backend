@@ -2,3 +2,5 @@ export * from './authController.ts';
 export * from './userController.ts';
 export * from './clientController.ts';
 export * from './appointmentController.ts';
+export * from './hilfePlanController.ts';
+export * from './statsController.ts';
