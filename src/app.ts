@@ -8,6 +8,8 @@ import {
     appointmentRoutes,
     hilfeplanRoutes,
     statsRoutes,
+    documentRoutes,
+    clientDocumentRoutes,
 } from '#routes';
 import { errorHandler } from '#middlewares';
 
@@ -28,7 +30,9 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/clients', clientRoutes);
 app.use('/api/v1/clients/:clientId/appointments', appointmentRoutes);
 app.use('/api/v1/clients/:clientId/hilfeplan', hilfeplanRoutes);
+app.use('/api/v1/clients/:clientId/documents', clientDocumentRoutes);
 app.use('/api/v1/stats', statsRoutes);
+app.use('/api/v1/documents', documentRoutes);
 
 app.use('*splat', (req, res) => res.status(404).json({ message: 'Not Found' }));
 app.use(errorHandler);

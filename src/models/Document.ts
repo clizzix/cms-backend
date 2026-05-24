@@ -9,22 +9,23 @@ export interface IDocument extends Document {
     fileType: FileType;
     fileSizeBytes: number;
     s3Key: string;
-    presignedUrl: string;
     description?: string;
+    confirmed: boolean;
+    createdAt: Date;
 }
 
-const DocumentSchema = new Schema<IDocument>(
+const documentSchema = new Schema<IDocument>(
     {
         clientId: { type: Types.ObjectId, ref: 'Client' },
         uploadedBy: { type: Types.ObjectId, ref: 'User' },
         fileName: { type: String, required: true },
         fileType: { type: String, enum: ['pdf', 'docx'], default: 'pdf' },
-        fileSizeBytes: { type: Number },
-        s3Key: { type: String },
-        presignedUrl: { type: String },
+        fileSizeBytes: { type: Number, required: true },
+        s3Key: { type: String, required: true, unique: true },
         description: { type: String },
+        confirmed: { type: Boolean, default: false },
     },
     { timestamps: true },
 );
 
-export default mongoose.model<IDocument>('Document', DocumentSchema);
+export default mongoose.model<IDocument>('Document', documentSchema);

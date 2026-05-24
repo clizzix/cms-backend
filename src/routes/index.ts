@@ -4,3 +4,5 @@ export { default as clientRoutes } from './clientRoutes.ts';
 export { default as appointmentRoutes } from './appointmentRoutes.ts';
 export { default as hilfeplanRoutes } from './hilfePlanRoutes.ts';
 export { default as statsRoutes } from './statsRoutes.ts';
+export { default as documentRoutes } from './documentRoutes.ts';
+export { default as clientDocumentRoutes } from './clientDocumentRoutes.ts';
