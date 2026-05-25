@@ -19,6 +19,7 @@ const signAccess = (userId: string, role: 'admin' | 'fachkraft') =>
 const signRefresh = (userId: string) =>
     jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET as string, {
         expiresIn: '7d',
+        jwtid: crypto.randomUUID(),
     });
 
 const hashToken = (token: string) =>
@@ -145,9 +146,25 @@ export const refresh: RequestHandler = async (req, res, next) => {
         }
 
         const newRefresh = await issueRefreshToken(user.id, stored.family);
-        stored.replacedByHash = hashToken(newRefresh);
-        stored.revokedAt = new Date();
-        await stored.save();
+        const newHash = hashToken(newRefresh);
+        const claimed = await RefreshToken.updateOne(
+            {
+                _id: stored._id,
+                replacedByHash: { $exists: false },
+                revokedAt: { $exists: false },
+            },
+            { $set: { replacedByHash: newHash, revokedAt: new Date() } },
+        );
+
+        if (claimed.matchedCount === 0) {
+            await RefreshToken.deleteOne({ tokenHash: newHash });
+            await RefreshToken.updateMany(
+                { family: stored.family, revokedAt: { $exists: false } },
+                { $set: { revokedAt: new Date() } },
+            );
+            res.status(403).json({ message: 'Token Rotation fehlgeschlagen' });
+            return;
+        }
 
         res.cookie('refreshToken', newRefresh, COOKIE_OPTS);
         res.json({ data: { accessToken: signAccess(user.id, user.role) } });
