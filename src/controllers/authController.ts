@@ -128,13 +128,21 @@ export const refresh: RequestHandler = async (req, res, next) => {
         const tokenHash = hashToken(token);
         const stored = await RefreshToken.findOne({ tokenHash });
 
-        if (!stored || stored.revokedAt || stored.replacedByHash) {
-            if (stored) {
-                await RefreshToken.updateMany(
-                    { family: stored.family, revokedAt: { $exists: false } },
-                    { $set: { revokedAt: new Date() } },
-                );
-            }
+        if (!stored) {
+            res.status(401).json({ message: 'Token unbekannt' });
+            return;
+        }
+
+        if (stored.replacedByHash) {
+            res.status(401).json({ message: 'Token bereits rotiert' });
+            return;
+        }
+
+        if (stored.revokedAt) {
+            await RefreshToken.updateMany(
+                { family: stored.family, revokedAt: { $exists: false } },
+                { $set: { revokedAt: new Date() } },
+            );
             res.status(403).json({ message: 'Token Rotation fehlgeschlagen' });
             return;
         }
