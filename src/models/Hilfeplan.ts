@@ -34,7 +34,11 @@ const hilfePlanSchema = new Schema<IHilfeplan>(
         createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         version: { type: Number, default: 1 },
     },
-    { timestamps: { updatedAt: true, createdAt: false } },
+    {
+        timestamps: { updatedAt: true, createdAt: false },
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    },
 );
 
 export default mongoose.model<IHilfeplan>('Hilfeplan', hilfePlanSchema);

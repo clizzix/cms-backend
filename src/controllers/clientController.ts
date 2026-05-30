@@ -24,7 +24,7 @@ export const getClients: RequestHandler = async (req, res, next) => {
             .populate('assignedFachkraefte', 'firstName lastName email')
             .sort({ familyName: 1 });
 
-        res.json({ data: { clients } });
+        res.json({ data: clients });
     } catch (err) {
         next(err);
     }
@@ -38,7 +38,7 @@ export const createClient: RequestHandler<{}, {}, CreateClientInput> = async (
 ) => {
     try {
         const client = await Client.create(req.body);
-        res.status(201).json({ data: { client } });
+        res.status(201).json({ data: client });
     } catch (err) {
         next(err);
     }
@@ -73,7 +73,7 @@ export const getClient: RequestHandler<{ id: string }> = async (
             }
         }
 
-        res.json({ data: { client } });
+        res.json({ data: client });
     } catch (err) {
         next(err);
     }
@@ -108,7 +108,7 @@ export const updateClient: RequestHandler<
         Object.assign(client, req.body);
         await client.save();
 
-        res.json({ data: { client } });
+        res.json({ data: client });
     } catch (err) {
         next(err);
     }
@@ -151,7 +151,7 @@ export const assignFachkraft: RequestHandler<
         );
         await client.save();
 
-        res.json({ data: { client } });
+        res.json({ data: client });
     } catch (err) {
         next(err);
     }
@@ -182,7 +182,7 @@ export const unassignFachkraft: RequestHandler<{
         }
 
         await client.save();
-        res.json({ data: { client } });
+        res.json({ data: client });
     } catch (err) {
         next(err);
     }

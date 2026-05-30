@@ -47,7 +47,11 @@ const AppointmentSchema = new Schema<IAppointment>(
         durationMinutes: { type: Number, required: true, default: 0 },
         report: { type: String, required: true },
     },
-    { timestamps: true },
+    {
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    },
 );
 
 export default mongoose.model<IAppointment>('Appointment', AppointmentSchema);

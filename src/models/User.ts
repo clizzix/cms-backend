@@ -37,10 +37,12 @@ UserSchema.methods.comparePassword = function (candidate: string) {
 };
 
 UserSchema.set('toJSON', {
+    virtuals: true,
     transform: (_doc, ret) => {
         const { password, ...rest } = ret as IUser & { password?: string };
         return rest;
     },
 });
+UserSchema.set('toObject', { virtuals: true });
 
 export default mongoose.model<IUser>('User', UserSchema);

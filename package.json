@@ -43,6 +43,7 @@
     },
     "scripts": {
         "dev": "node --watch --conditions dev --env-file=.env src/server.ts",
+        "seed": "node --conditions dev --env-file=.env src/scripts/seed.ts",
         "prebuild": "rm -rf dist",
         "build": "tsc",
         "prestart": "npm run build",

@@ -16,7 +16,7 @@ const protect: RequestHandler = (req, res, next) => {
     if (!token) {
         return res
             .status(401)
-            .json({ error: 'Nicht authorisiert, kein token vorhanden' });
+            .json({ message: 'Nicht authorisiert, kein token vorhanden' });
     }
 
     try {
@@ -31,7 +31,7 @@ const protect: RequestHandler = (req, res, next) => {
     } catch (error) {
         return res
             .status(401)
-            .json({ error: 'Nicht authorisiert, token fehlgeschlagen' });
+            .json({ message: 'Nicht authorisiert, token fehlgeschlagen' });
     }
 };
 

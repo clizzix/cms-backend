@@ -8,7 +8,7 @@ export const getUsers: RequestHandler = async (_req, res, next) => {
             lastName: 1,
             firstName: 1,
         });
-        res.json({ data: { users } });
+        res.json({ data: users });
     } catch (err) {
         next(err);
     }
@@ -78,7 +78,7 @@ export const updateUser: RequestHandler<
         if (role !== undefined) user.role = role;
 
         await user.save();
-        res.json({ data: { user } });
+        res.json({ data: user });
     } catch (err) {
         next(err);
     }
@@ -106,7 +106,7 @@ export const deleteUser: RequestHandler<{ id: string }> = async (
         await RefreshToken.deleteMany({ userId: user._id });
         await user.deleteOne();
 
-        res.json({ data: { message: 'User gelöscht' } });
+        res.status(204).end();
     } catch (err) {
         next(err);
     }

@@ -37,6 +37,21 @@ export const getWorkload: RequestHandler = async (_req, res, next) => {
         })
             .select('clientId durationHours durationMinutes createdBy')
             .lean();
+        // Alle Termine dieser Woche (für Termin-Zähler pro FK)
+        const weekAppointments = await Appointment.find({
+            date: { $gte: weekStart, $lte: weekEnd },
+        })
+            .select('clientId createdBy status report')
+            .lean();
+        // Überfällige Berichte: durchgeführte Termine der letzten 14 Tage ohne Bericht
+        const overdueCutoff = new Date(now);
+        overdueCutoff.setDate(overdueCutoff.getDate() - 14);
+        const overdueCandidates = await Appointment.find({
+            status: 'durchgeführt',
+            date: { $gte: overdueCutoff, $lte: now },
+        })
+            .select('createdBy report')
+            .lean();
         // Alle ausgefallenen Termine des aktuellen Kalendermonats
         const cancelledAppointments = await Appointment.find({
             status: 'ausgefallen',
@@ -109,6 +124,20 @@ export const getWorkload: RequestHandler = async (_req, res, next) => {
                     ? Math.round((workedMinutes / quotaMinutes) * 100)
                     : 0;
 
+            const appointmentsThisWeek = weekAppointments.filter(
+                (a) => a.createdBy.toString() === fkId,
+            ).length;
+
+            const overdueReports = overdueCandidates.filter(
+                (a) => {
+                    if (a.createdBy.toString() !== fkId) return false;
+                    const r = (a.report ?? '').trim();
+                    // '' wird vom required-Validator ausgeschlossen,
+                    // '-' ist der Sentinel für "Bericht ausstehend".
+                    return r === '' || r === '-';
+                },
+            ).length;
+
             return {
                 fachkraft: {
                     id: fkId,
@@ -122,6 +151,8 @@ export const getWorkload: RequestHandler = async (_req, res, next) => {
                 cancelledCreditedCount,
                 cancelledCreditMinutes,
                 utilizationPercent,
+                appointmentsThisWeek,
+                overdueReports,
             };
         });
         res.json({ data: workload });

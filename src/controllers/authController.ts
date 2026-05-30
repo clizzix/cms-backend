@@ -188,7 +188,7 @@ export const logout: RequestHandler = async (req, res, next) => {
             await RefreshToken.deleteOne({ tokenHash: hashToken(token) });
         }
         res.clearCookie('refreshToken', CLEAR_COOKIE_OPTS);
-        res.json('Ausgeloggt');
+        res.status(204).end();
     } catch (err) {
         next(err);
     }
@@ -222,7 +222,7 @@ export const changeEmail: RequestHandler<{}, {}, ChangeEmailInput> = async (
         }
         user.email = normalized;
         await user.save();
-        res.json({ data: { user } });
+        res.json({ data: user });
     } catch (err) {
         next(err);
     }
@@ -272,7 +272,7 @@ export const me: RequestHandler = async (req, res, next) => {
             res.status(404).json({ message: 'User not found' });
             return;
         }
-        res.json({ data: { user } });
+        res.json({ data: user });
     } catch (err) {
         next(err);
     }

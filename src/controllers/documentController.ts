@@ -73,14 +73,13 @@ export const confirmUpload: RequestHandler<{ id: string }> = async (
         }
 
         if (doc.confirmed) {
-            return res
-                .status(200)
-                .json({ data: { message: 'Bereits bestätigt' } });
+            res.status(204).end();
+            return;
         }
 
         doc.confirmed = true;
         await doc.save();
-        res.status(200).json({ data: { documentId: doc._id } });
+        res.status(204).end();
     } catch (err) {
         next(err);
     }
@@ -154,7 +153,7 @@ export const deleteDocument: RequestHandler<{ id: string }> = async (
         await deleteS3Object(doc.s3Key);
         await doc.deleteOne();
 
-        res.status(200).json({ data: { message: 'Dokument gelöscht' } });
+        res.status(204).end();
     } catch (err) {
         next(err);
     }

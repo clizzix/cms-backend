@@ -30,7 +30,7 @@ export const getAppointments: RequestHandler<ClientParams> = async (
             .populate('createdBy', 'firstName lastName')
             .sort({ date: -1 });
 
-        res.json({ data: { appointments } });
+        res.json({ data: appointments });
     } catch (err) {
         next(err);
     }
@@ -92,7 +92,7 @@ export const getAppointment: RequestHandler<AppointmentParams> = async (
             return;
         }
 
-        res.json({ data: { appointment } });
+        res.json({ data: appointment });
     } catch (err) {
         next(err);
     }
@@ -128,7 +128,7 @@ export const updateAppointment: RequestHandler<
         Object.assign(appointment, req.body);
         await appointment.save();
 
-        res.json({ data: { appointment } });
+        res.json({ data: appointment });
     } catch (err) {
         next(err);
     }
@@ -161,7 +161,7 @@ export const deleteAppointment: RequestHandler<AppointmentParams> = async (
             return;
         }
 
-        res.json({ data: { message: 'Termin gelöscht' } });
+        res.status(204).end();
     } catch (err) {
         next(err);
     }

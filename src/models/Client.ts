@@ -44,7 +44,11 @@ const ClientSchema = new Schema<IClient>(
         startDate: { type: Date, required: true },
         endDate: { type: Date },
     },
-    { timestamps: true },
+    {
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    },
 );
 
 export default mongoose.model<IClient>('Client', ClientSchema);

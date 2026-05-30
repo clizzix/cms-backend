@@ -17,7 +17,6 @@ const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
         (err.name === 'ValidationError' ? 400 : 500);
 
     res.status(statusCode).json({
-        status: 'error',
         message: err.message || 'Internal Server error',
         ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
     });
